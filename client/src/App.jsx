@@ -19,6 +19,7 @@ import MarketDemandPage from './pages/MarketDemandPage';
 import ProfitCalculatorPage from './pages/ProfitCalculatorPage';
 import NotificationsPage from './pages/NotificationsPage';
 import ProfilePage from './pages/ProfilePage';
+import SettingsPage from './pages/SettingsPage';
 
 function App() {
   return (
@@ -75,6 +76,10 @@ function App() {
             <Route
               path="/profile"
               element={<ProtectedRoute><ProfilePage /></ProtectedRoute>}
+            />
+            <Route
+              path="/settings"
+              element={<ProtectedRoute><SettingsPage /></ProtectedRoute>}
             />
 
             {/* Catch-all */}

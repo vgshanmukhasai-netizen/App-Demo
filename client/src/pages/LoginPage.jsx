@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Alert from '../components/common/Alert';
+import { useLanguage, LANGUAGES } from '../context/LanguageContext';
 import './AuthPages.css';
 
 const LoginPage = () => {
   const { login } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({ email: '', password: '' });
@@ -21,7 +23,7 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.email || !form.password) {
-      setError('Please enter your email and password.');
+      setError(t('Please enter your email and password.'));
       return;
     }
     setLoading(true);
@@ -29,7 +31,7 @@ const LoginPage = () => {
       await login(form);
       navigate('/dashboard', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      setError(err.response?.data?.message || t('Login failed. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -41,13 +43,19 @@ const LoginPage = () => {
       <div className="auth-header">
         <div className="auth-logo">🌾</div>
         <h1 className="auth-app-name">AgroSelf</h1>
-        <p className="auth-subtitle">Smart Farming for Every Farmer</p>
+        <p className="auth-subtitle">{t('Smart Farming for Every Farmer')}</p>
       </div>
 
       {/* Card */}
       <div className="auth-card">
-        <h2 className="auth-card-title">Welcome Back 👋</h2>
-        <p className="auth-card-desc">Login to manage your farm</p>
+        <div className="form-group">
+          <label className="form-label" htmlFor="login-language">{t('Language')}</label>
+          <select id="login-language" className="form-input form-select" value={language} onChange={(event) => setLanguage(event.target.value)}>
+            {LANGUAGES.map((item) => <option key={item.code} value={item.code}>{item.nativeLabel}</option>)}
+          </select>
+        </div>
+        <h2 className="auth-card-title">{t('Welcome Back 👋')}</h2>
+        <p className="auth-card-desc">{t('Login to manage your farm')}</p>
 
         {error && (
           <Alert type="danger" className="mb-4">
@@ -59,14 +67,14 @@ const LoginPage = () => {
           {/* Email */}
           <div className="form-group">
             <label htmlFor="login-email" className="form-label">
-              Email Address
+              {t('Email Address')}
             </label>
             <input
               id="login-email"
               name="email"
               type="email"
               className="form-input"
-              placeholder="ramesh@example.com"
+              placeholder={t('ramesh@example.com')}
               value={form.email}
               onChange={handleChange}
               autoComplete="email"
@@ -77,7 +85,7 @@ const LoginPage = () => {
           {/* Password */}
           <div className="form-group">
             <label htmlFor="login-password" className="form-label">
-              Password
+              {t('Password')}
             </label>
             <div className="password-wrapper">
               <input
@@ -95,7 +103,7 @@ const LoginPage = () => {
                 type="button"
                 className="password-toggle"
                 onClick={() => setShowPassword((v) => !v)}
-                aria-label="Toggle password visibility"
+                aria-label={t('Toggle password visibility')}
               >
                 {showPassword ? '🙈' : '👁️'}
               </button>
@@ -114,13 +122,13 @@ const LoginPage = () => {
                 Logging in...
               </>
             ) : (
-              'Login to AgroSelf'
+              t('Login to AgroSelf')
             )}
           </button>
         </form>
 
         <div className="divider-text mt-4 mb-4">
-          <span>New farmer?</span>
+          <span>{t('New farmer?')}</span>
         </div>
 
         <Link
@@ -128,7 +136,7 @@ const LoginPage = () => {
           id="go-to-register-btn"
           className="btn btn-outline btn-full"
         >
-          Create New Account
+          {t('Create New Account')}
         </Link>
       </div>
     </div>

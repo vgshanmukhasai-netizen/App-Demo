@@ -8,6 +8,8 @@ const { WateringLog } = require('../models/WateringLog');
 const { MarketData } = require('../models/MarketData');
 const { Notification } = require('../models/Notification');
 
+let connectionPromise;
+
 // --- Associations --------------------------------------------------------------
 Farmer.hasMany(Crop, { foreignKey: 'farmerId', onDelete: 'CASCADE' });
 Crop.belongsTo(Farmer, { foreignKey: 'farmerId' });
@@ -22,18 +24,24 @@ Farmer.hasMany(Notification, { foreignKey: 'farmerId', onDelete: 'CASCADE' });
 Notification.belongsTo(Farmer, { foreignKey: 'farmerId' });
 
 // --- Connect & Sync ------------------------------------------------------------
-const connectDB = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('? MySQL Connected via Sequelize');
+const connectDB = () => {
+  if (!connectionPromise) {
+    connectionPromise = (async () => {
+      try {
+        await sequelize.authenticate();
+        console.log('MySQL connected via Sequelize');
 
-    // alter:true updates existing tables without dropping data
-    await sequelize.sync({ alter: true });
-    console.log('? MySQL tables synced successfully');
-  } catch (error) {
-    console.error(`? MySQL Connection Error: ${error.message}`);
-    process.exit(1);
+        await sequelize.sync({ alter: true });
+        console.log('MySQL tables synced successfully');
+      } catch (error) {
+        connectionPromise = null;
+        console.error(`MySQL connection error: ${error.message}`);
+        throw error;
+      }
+    })();
   }
+
+  return connectionPromise;
 };
 
 module.exports = connectDB;

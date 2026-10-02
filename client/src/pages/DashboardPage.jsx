@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useCrops } from '../context/CropContext';
+import { useLanguage } from '../context/LanguageContext';
 import Navbar from '../components/layout/Navbar';
 import BottomNav from '../components/layout/BottomNav';
 import { daysUntilHarvest, formatDate } from '../utils/dateUtils';
@@ -18,6 +19,7 @@ const QUICK_ACTIONS = [
 const DashboardPage = () => {
   const { farmer } = useAuth();
   const { activeCrops, loading } = useCrops();
+  const { t } = useLanguage();
 
   const firstName = farmer?.name?.split(' ')[0] || 'Farmer';
 
@@ -42,24 +44,24 @@ const DashboardPage = () => {
         {/* ── Greeting Card ── */}
         <div className="dashboard-greeting card-green" id="greeting-card">
           <div>
-            <p className="greeting-sub">Good morning 🌅</p>
-            <h2 className="greeting-title">Hello, {firstName} 👋</h2>
+            <p className="greeting-sub">{t('Good morning 🌅')}</p>
+            <h2 className="greeting-title">{t('Hello, ')}{firstName} 👋</h2>
             <p className="greeting-location">
-              📍 {farmer?.location?.district || 'Your Farm'}
+              📍 {farmer?.location?.district || t('Your Farm')}
               {farmer?.location?.state ? `, ${farmer.location.state}` : ''}
             </p>
           </div>
           <div className="greeting-stats">
             <div className="stat-item">
               <span className="stat-value">{activeCrops.length}</span>
-              <span className="stat-label">Active Crops</span>
+              <span className="stat-label">{t('Active Crops')}</span>
             </div>
             <div className="stat-divider" />
             <div className="stat-item">
               <span className="stat-value">
                 {farmer?.landDetails?.totalArea || '—'}
               </span>
-              <span className="stat-label">{farmer?.landDetails?.areaUnit || 'acres'}</span>
+              <span className="stat-label">{t(farmer?.landDetails?.areaUnit || 'acres')}</span>
             </div>
           </div>
         </div>
@@ -74,22 +76,22 @@ const DashboardPage = () => {
             <div>
               <p className="harvest-alert-title">
                 {daysToHarvest <= 0
-                  ? `${nearestHarvest.cropName} is ready to harvest!`
-                  : `${nearestHarvest.cropName} harvest in ${daysToHarvest} day${daysToHarvest === 1 ? '' : 's'}`}
+                  ? `${t(nearestHarvest.cropName)} ${t('is ready to harvest!')}`
+                  : `${t(nearestHarvest.cropName)} ${t('harvest in')} ${daysToHarvest} ${t(daysToHarvest === 1 ? 'day' : 'days')}`}
               </p>
               <p className="harvest-alert-sub">
-                Expected: {formatDate(nearestHarvest.expectedHarvestDate)}
+                {t('Expected:')} {formatDate(nearestHarvest.expectedHarvestDate)}
               </p>
             </div>
             <Link to={`/crops/${nearestHarvest._id}`} className="harvest-alert-link">
-              View →
+              {t('View →')}
             </Link>
           </div>
         )}
 
         {/* ── Quick Actions ── */}
         <section className="dashboard-section" id="quick-actions">
-          <h3 className="section-title">Quick Actions</h3>
+          <h3 className="section-title">{t('Quick Actions')}</h3>
           <div className="quick-actions-grid">
             {QUICK_ACTIONS.map((action) => (
               <Link
@@ -104,7 +106,7 @@ const DashboardPage = () => {
                 >
                   {action.icon}
                 </div>
-                <span className="quick-action-label">{action.label}</span>
+                <span className="quick-action-label">{t(action.label)}</span>
               </Link>
             ))}
           </div>
@@ -113,8 +115,8 @@ const DashboardPage = () => {
         {/* ── Active Crops ── */}
         <section className="dashboard-section" id="active-crops-section">
           <div className="section-header">
-            <h3 className="section-title">My Crops</h3>
-            <Link to="/crops" className="section-link">View All →</Link>
+            <h3 className="section-title">{t('My Crops')}</h3>
+            <Link to="/crops" className="section-link">{t('View All →')}</Link>
           </div>
 
           {loading ? (
@@ -124,10 +126,10 @@ const DashboardPage = () => {
           ) : activeCrops.length === 0 ? (
             <div className="empty-state card" id="no-crops-state">
               <span className="empty-icon">🌱</span>
-              <p className="empty-title">No active crops yet</p>
-              <p className="empty-desc">Add your first crop to start tracking</p>
+              <p className="empty-title">{t('No active crops yet')}</p>
+              <p className="empty-desc">{t('Add your first crop to start tracking')}</p>
               <Link to="/crops/add" id="add-first-crop-btn" className="btn btn-primary mt-4">
-                + Add First Crop
+                {t('+ Add First Crop')}
               </Link>
             </div>
           ) : (
@@ -142,15 +144,15 @@ const DashboardPage = () => {
                   <div className="crop-preview-left">
                     <span className="crop-preview-icon">🌿</span>
                     <div>
-                      <p className="crop-preview-name">{crop.cropName}</p>
-                      <p className="crop-preview-stage">{crop.currentGrowthStage}</p>
+                      <p className="crop-preview-name">{t(crop.cropName)}</p>
+                      <p className="crop-preview-stage">{t(crop.currentGrowthStage)}</p>
                     </div>
                   </div>
                   <div className="crop-preview-right">
-                    <p className="crop-preview-area">{crop.landArea} {crop.areaUnit}</p>
+                    <p className="crop-preview-area">{crop.landArea} {t(crop.areaUnit)}</p>
                     {crop.expectedHarvestDate && (
                       <p className="crop-preview-harvest">
-                        Harvest: {formatDate(crop.expectedHarvestDate)}
+                        {t('Harvest')}: {formatDate(crop.expectedHarvestDate)}
                       </p>
                     )}
                   </div>
@@ -158,26 +160,26 @@ const DashboardPage = () => {
               ))}
               {activeCrops.length > 3 && (
                 <Link to="/crops" className="see-more-link">
-                  + {activeCrops.length - 3} more crops
+                  + {activeCrops.length - 3} {t('more crops')}
                 </Link>
               )}
             </div>
           )}
         </section>
 
-        {/* ── Weather Placeholder (Phase 7) ── */}
+        {/* ── Local weather preview link ── */}
         <section className="dashboard-section" id="weather-section">
           <div className="section-header">
-            <h3 className="section-title">Today's Weather</h3>
-            <Link to="/weather" className="section-link">Details →</Link>
+            <h3 className="section-title">{t("Today's Weather")}</h3>
+            <Link to="/weather" className="section-link">{t('Details →')}</Link>
           </div>
           <Link to="/weather" className="weather-teaser-card card">
             <div className="weather-teaser-content">
               <span className="weather-teaser-icon">🌤️</span>
               <div>
-                <p className="weather-teaser-title">Check Weather</p>
+                <p className="weather-teaser-title">{t('Live Farm Forecast')}</p>
                 <p className="weather-teaser-sub">
-                  Setup coming in Phase 7 — add your OpenWeatherMap API key
+                  {t('Current conditions and a five-day forecast for your location')}
                 </p>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage, LANGUAGES } from '../context/LanguageContext';
 import Alert from '../components/common/Alert';
 import {
   SOIL_TYPES, WATER_AVAILABILITY, IRRIGATION_TYPES,
@@ -16,6 +17,7 @@ const STEPS = [
 
 const RegisterPage = () => {
   const { register } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
@@ -48,14 +50,14 @@ const RegisterPage = () => {
 
   const validateStep = () => {
     if (step === 1) {
-      if (!form.name.trim()) return 'Please enter your name.';
-      if (!/^[6-9]\d{9}$/.test(form.phone)) return 'Enter a valid 10-digit phone number.';
-      if (!/\S+@\S+\.\S+/.test(form.email)) return 'Enter a valid email address.';
-      if (form.password.length < 6) return 'Password must be at least 6 characters.';
+      if (!form.name.trim()) return t('Please enter your name.');
+      if (!/^[6-9]\d{9}$/.test(form.phone)) return t('Enter a valid 10-digit phone number.');
+      if (!/\S+@\S+\.\S+/.test(form.email)) return t('Enter a valid email address.');
+      if (form.password.length < 6) return t('Password must be at least 6 characters.');
     }
     if (step === 2) {
-      if (!form.district.trim()) return 'Please enter your district.';
-      if (!form.state) return 'Please select your state.';
+      if (!form.district.trim()) return t('Please enter your district.');
+      if (!form.state) return t('Please select your state.');
     }
     return null;
   };
@@ -94,7 +96,7 @@ const RegisterPage = () => {
       });
       navigate('/dashboard', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+      setError(err.response?.data?.message || t('Registration failed. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -105,8 +107,8 @@ const RegisterPage = () => {
       {/* Top banner */}
       <div className="auth-header auth-header-compact">
         <div className="auth-logo">🌾</div>
-        <h1 className="auth-app-name">Join AgroSelf</h1>
-        <p className="auth-subtitle">Create your free farmer account</p>
+        <h1 className="auth-app-name">{t('Join AgroSelf')}</h1>
+        <p className="auth-subtitle">{t('Create your free farmer account')}</p>
       </div>
 
       {/* Step indicator */}
@@ -117,13 +119,19 @@ const RegisterPage = () => {
             className={`step-item ${step === s.id ? 'active' : ''} ${step > s.id ? 'done' : ''}`}
           >
             <div className="step-dot">{step > s.id ? '✓' : s.icon}</div>
-            <span className="step-label">{s.title}</span>
+            <span className="step-label">{t(s.title)}</span>
           </div>
         ))}
       </div>
 
       {/* Card */}
       <div className="auth-card">
+        <div className="form-group">
+          <label className="form-label" htmlFor="register-language">{t('Language')}</label>
+          <select id="register-language" className="form-input form-select" value={language} onChange={(event) => setLanguage(event.target.value)}>
+            {LANGUAGES.map((item) => <option key={item.code} value={item.code}>{item.nativeLabel}</option>)}
+          </select>
+        </div>
         {error && (
           <Alert type="danger" className="mb-4">
             {error}
@@ -135,34 +143,34 @@ const RegisterPage = () => {
           {/* ── STEP 1: Personal ── */}
           {step === 1 && (
             <div className="fade-in">
-              <h2 className="auth-card-title">Personal Details</h2>
-              <p className="auth-card-desc mb-4">Tell us about yourself</p>
+              <h2 className="auth-card-title">{t('Personal Details')}</h2>
+              <p className="auth-card-desc mb-4">{t('Tell us about yourself')}</p>
 
               <div className="form-group">
-                <label htmlFor="reg-name" className="form-label">Full Name *</label>
+                <label htmlFor="reg-name" className="form-label">{t('Full Name *')}</label>
                 <input id="reg-name" name="name" type="text" className="form-input"
-                  placeholder="e.g. Ramesh Kumar" value={form.name} onChange={handleChange} />
+                  placeholder={t('e.g. Ramesh Kumar')} value={form.name} onChange={handleChange} />
               </div>
 
               <div className="form-group">
-                <label htmlFor="reg-phone" className="form-label">Phone Number *</label>
+                <label htmlFor="reg-phone" className="form-label">{t('Phone Number *')}</label>
                 <input id="reg-phone" name="phone" type="tel" className="form-input"
-                  placeholder="e.g. 9876543210" value={form.phone} onChange={handleChange}
+                  placeholder={t('e.g. 9876543210')} value={form.phone} onChange={handleChange}
                   maxLength={10} />
               </div>
 
               <div className="form-group">
-                <label htmlFor="reg-email" className="form-label">Email Address *</label>
+                <label htmlFor="reg-email" className="form-label">{t('Email Address *')}</label>
                 <input id="reg-email" name="email" type="email" className="form-input"
-                  placeholder="ramesh@example.com" value={form.email} onChange={handleChange} />
+                  placeholder={t('ramesh@example.com')} value={form.email} onChange={handleChange} />
               </div>
 
               <div className="form-group">
-                <label htmlFor="reg-password" className="form-label">Password *</label>
+                <label htmlFor="reg-password" className="form-label">{t('Password *')}</label>
                 <div className="password-wrapper">
                   <input id="reg-password" name="password"
                     type={showPassword ? 'text' : 'password'} className="form-input"
-                    placeholder="Min. 6 characters" value={form.password} onChange={handleChange} />
+                    placeholder={t('Min. 6 characters')} value={form.password} onChange={handleChange} />
                   <button type="button" className="password-toggle"
                     onClick={() => setShowPassword((v) => !v)}>
                     {showPassword ? '🙈' : '👁️'}
@@ -172,7 +180,7 @@ const RegisterPage = () => {
 
               <button type="button" id="reg-next-1" className="btn btn-primary btn-full btn-lg"
                 onClick={nextStep}>
-                Continue →
+                {t('Continue →')}
               </button>
             </div>
           )}
@@ -180,39 +188,39 @@ const RegisterPage = () => {
           {/* ── STEP 2: Location ── */}
           {step === 2 && (
             <div className="fade-in">
-              <h2 className="auth-card-title">Farm Location</h2>
-              <p className="auth-card-desc mb-4">Where is your farm located?</p>
+              <h2 className="auth-card-title">{t('Farm Location')}</h2>
+              <p className="auth-card-desc mb-4">{t('Where is your farm located?')}</p>
 
               <div className="form-group">
-                <label htmlFor="reg-village" className="form-label">Village / Town</label>
+                <label htmlFor="reg-village" className="form-label">{t('Village / Town')}</label>
                 <input id="reg-village" name="village" type="text" className="form-input"
-                  placeholder="e.g. Kothapalli" value={form.village} onChange={handleChange} />
+                  placeholder={t('e.g. Kothapalli')} value={form.village} onChange={handleChange} />
               </div>
 
               <div className="form-group">
-                <label htmlFor="reg-district" className="form-label">District *</label>
+                <label htmlFor="reg-district" className="form-label">{t('District *')}</label>
                 <input id="reg-district" name="district" type="text" className="form-input"
-                  placeholder="e.g. Guntur" value={form.district} onChange={handleChange} />
+                  placeholder={t('e.g. Guntur')} value={form.district} onChange={handleChange} />
               </div>
 
               <div className="form-group">
-                <label htmlFor="reg-state" className="form-label">State *</label>
+                <label htmlFor="reg-state" className="form-label">{t('State *')}</label>
                 <select id="reg-state" name="state" className="form-input form-select"
                   value={form.state} onChange={handleChange}>
-                  <option value="">Select your state</option>
+                  <option value="">{t('Select your state')}</option>
                   {INDIAN_STATES.map((s) => (
-                    <option key={s} value={s}>{s}</option>
+                    <option key={s} value={s}>{t(s)}</option>
                   ))}
                 </select>
               </div>
 
               <div className="form-row-2">
                 <button type="button" className="btn btn-outline" onClick={() => setStep(1)}>
-                  ← Back
+                  {t('← Back')}
                 </button>
                 <button type="button" id="reg-next-2" className="btn btn-primary"
                   onClick={nextStep}>
-                  Continue →
+                  {t('Continue →')}
                 </button>
               </div>
             </div>
@@ -221,62 +229,62 @@ const RegisterPage = () => {
           {/* ── STEP 3: Land ── */}
           {step === 3 && (
             <div className="fade-in">
-              <h2 className="auth-card-title">Land Details</h2>
-              <p className="auth-card-desc mb-4">Tell us about your farmland</p>
+              <h2 className="auth-card-title">{t('Land Details')}</h2>
+              <p className="auth-card-desc mb-4">{t('Tell us about your farmland')}</p>
 
               <div className="form-row-2">
                 <div className="form-group" style={{ flex: 2 }}>
-                  <label htmlFor="reg-area" className="form-label">Land Area</label>
+                  <label htmlFor="reg-area" className="form-label">{t('Land Area')}</label>
                   <input id="reg-area" name="totalArea" type="number" className="form-input"
-                    placeholder="e.g. 3" value={form.totalArea} onChange={handleChange}
+                    placeholder={t('e.g. 3')} value={form.totalArea} onChange={handleChange}
                     min="0" step="0.5" />
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
-                  <label htmlFor="reg-areaunit" className="form-label">Unit</label>
+                  <label htmlFor="reg-areaunit" className="form-label">{t('Unit')}</label>
                   <select id="reg-areaunit" name="areaUnit" className="form-input form-select"
                     value={form.areaUnit} onChange={handleChange}>
-                    {AREA_UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
+                    {AREA_UNITS.map((u) => <option key={u} value={u}>{t(u)}</option>)}
                   </select>
                 </div>
               </div>
 
               <div className="form-group">
-                <label htmlFor="reg-soil" className="form-label">Soil Type</label>
+                <label htmlFor="reg-soil" className="form-label">{t('Soil Type')}</label>
                 <select id="reg-soil" name="soilType" className="form-input form-select"
                   value={form.soilType} onChange={handleChange}>
-                  {SOIL_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}
+                  {SOIL_TYPES.map((s) => <option key={s} value={s}>{t(s)}</option>)}
                 </select>
               </div>
 
               <div className="form-group">
-                <label htmlFor="reg-water" className="form-label">Water Availability</label>
+                <label htmlFor="reg-water" className="form-label">{t('Water Availability')}</label>
                 <select id="reg-water" name="waterAvailability" className="form-input form-select"
                   value={form.waterAvailability} onChange={handleChange}>
-                  {WATER_AVAILABILITY.map((w) => <option key={w} value={w}>{w}</option>)}
+                  {WATER_AVAILABILITY.map((w) => <option key={w} value={w}>{t(w)}</option>)}
                 </select>
               </div>
 
               <div className="form-group">
-                <label htmlFor="reg-irrigation" className="form-label">Irrigation Type</label>
+                <label htmlFor="reg-irrigation" className="form-label">{t('Irrigation Type')}</label>
                 <select id="reg-irrigation" name="irrigationType" className="form-input form-select"
                   value={form.irrigationType} onChange={handleChange}>
-                  {IRRIGATION_TYPES.map((i) => <option key={i} value={i}>{i}</option>)}
+                  {IRRIGATION_TYPES.map((i) => <option key={i} value={i}>{t(i)}</option>)}
                 </select>
               </div>
 
               <div className="form-row-2">
                 <button type="button" className="btn btn-outline" onClick={() => setStep(2)}>
-                  ← Back
+                  {t('← Back')}
                 </button>
                 <button id="reg-submit-btn" type="submit" className="btn btn-primary"
                   disabled={loading}>
                   {loading ? (
                     <>
                       <span className="spinner" style={{ width: 16, height: 16, borderWidth: 2 }} />
-                      Creating...
+                      {t('Creating...')}
                     </>
                   ) : (
-                    'Create Account ✓'
+                    t('Create Account ✓')
                   )}
                 </button>
               </div>
@@ -286,8 +294,8 @@ const RegisterPage = () => {
 
         {step === 1 && (
           <p className="auth-switch-text mt-4">
-            Already have an account?{' '}
-            <Link to="/login" id="go-to-login-link">Login here</Link>
+            {t('Already have an account?')}{' '}
+            <Link to="/login" id="go-to-login-link">{t('Login here')}</Link>
           </p>
         )}
       </div>

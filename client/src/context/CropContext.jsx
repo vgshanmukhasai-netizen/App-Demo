@@ -4,6 +4,8 @@ import { useAuth } from './AuthContext';
 
 const CropContext = createContext(null);
 
+const normalizeCrop = (crop) => ({ ...crop, _id: crop._id ?? crop.id });
+
 export const CropProvider = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const [crops, setCrops] = useState([]);
@@ -16,7 +18,7 @@ export const CropProvider = ({ children }) => {
     setError(null);
     try {
       const res = await cropAPI.getCrops();
-      setCrops(res.data.data.crops);
+      setCrops(res.data.data.crops.map(normalizeCrop));
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load crops');
     } finally {
@@ -30,14 +32,14 @@ export const CropProvider = ({ children }) => {
 
   const addCrop = async (data) => {
     const res = await cropAPI.addCrop(data);
-    const newCrop = res.data.data.crop;
+    const newCrop = normalizeCrop(res.data.data.crop);
     setCrops((prev) => [newCrop, ...prev]);
     return newCrop;
   };
 
   const updateCrop = async (id, data) => {
     const res = await cropAPI.updateCrop(id, data);
-    const updated = res.data.data.crop;
+    const updated = normalizeCrop(res.data.data.crop);
     setCrops((prev) => prev.map((c) => (c._id === id ? updated : c)));
     return updated;
   };
@@ -49,7 +51,7 @@ export const CropProvider = ({ children }) => {
 
   const updateGrowthStage = async (id, stage, notes = '') => {
     const res = await cropAPI.updateGrowthStage(id, { stage, notes });
-    const updated = res.data.data.crop;
+    const updated = normalizeCrop(res.data.data.crop);
     setCrops((prev) => prev.map((c) => (c._id === id ? updated : c)));
     return updated;
   };

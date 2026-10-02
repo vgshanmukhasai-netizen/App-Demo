@@ -6,8 +6,9 @@ import { cropAPI } from '../services/cropAPI';
 import Badge from '../components/common/Badge';
 import Alert from '../components/common/Alert';
 import Loader from '../components/common/Loader';
-import { formatDate, timeAgo, daysUntilHarvest } from '../utils/dateUtils';
+import { timeAgo, daysUntilHarvest } from '../utils/dateUtils';
 import { GROWTH_STAGES, getNextStage } from '../constants/growthStages';
+import { useLanguage } from '../context/LanguageContext';
 
 const STAGE_COLORS = {
   Planting: 'gray', Seedling: 'green', Vegetative: 'green',
@@ -18,6 +19,7 @@ const CropDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { updateGrowthStage, deleteCrop } = useCrops();
+  const { language, t } = useLanguage();
 
   const [crop, setCrop] = useState(null);
   const [wateringLogs, setWateringLogs] = useState([]);
@@ -36,13 +38,13 @@ const CropDetailPage = () => {
         setCrop(res.data.data.crop);
         setWateringLogs(res.data.data.wateringLogs || []);
       } catch {
-        setError('Crop not found or access denied.');
+        setError(t('Crop not found or access denied.'));
       } finally {
         setLoading(false);
       }
     };
     fetchCrop();
-  }, [id]);
+  }, [id, t]);
 
   const handleNextStage = async () => {
     const nextStage = getNextStage(crop.currentGrowthStage);
@@ -75,7 +77,7 @@ const CropDetailPage = () => {
     }
   };
 
-  if (loading) return <div className="app-container"><Loader fullScreen text="Loading crop..." /></div>;
+  if (loading) return <div className="app-container"><Loader fullScreen text={t('Loading crop...')} /></div>;
   if (error) return <div className="app-container"><div className="page page-with-header"><Alert type="danger">{error}</Alert></div></div>;
 
   const daysToHarvest = crop.expectedHarvestDate ? daysUntilHarvest(crop.expectedHarvestDate) : null;
@@ -92,23 +94,23 @@ const CropDetailPage = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <h2 style={{ fontSize: 'var(--text-2xl)', color: 'white', fontWeight: 800 }}>
-                🌿 {crop.cropName}
+                🌿 {t(crop.cropName)}
               </h2>
               <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
-                {crop.landArea} {crop.areaUnit} · {crop.soilType} soil
+                {crop.landArea} {t(crop.areaUnit)} · {t(crop.soilType)}
               </p>
             </div>
             <Link to={`/crops/${id}/edit`} className="btn btn-sm"
               style={{ background: 'rgba(255,255,255,0.2)', color: 'white', border: 'none' }}>
-              Edit
+              {t('Edit')}
             </Link>
           </div>
           {daysToHarvest !== null && (
             <div style={{ marginTop: '1rem', background: 'rgba(255,255,255,0.15)', borderRadius: 'var(--radius-lg)', padding: 'var(--space-3)' }}>
-              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'var(--text-xs)' }}>Expected Harvest</p>
+              <p style={{ color: 'rgba(255,255,255,0.7)', fontSize: 'var(--text-xs)' }}>{t('Expected Harvest')}</p>
               <p style={{ color: 'white', fontWeight: 700 }}>
-                {formatDate(crop.expectedHarvestDate)}
-                {daysToHarvest > 0 ? ` — ${daysToHarvest} days away` : ' — Ready to harvest!'}
+                {new Intl.DateTimeFormat(language, { dateStyle: 'medium' }).format(new Date(`${crop.expectedHarvestDate}T12:00:00`))}
+                {daysToHarvest > 0 ? ` — ${daysToHarvest} ${t('days away')}` : ` — ${t('Ready to harvest!')}`}
               </p>
             </div>
           )}
@@ -117,9 +119,9 @@ const CropDetailPage = () => {
         {/* Growth Stage Tracker */}
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Growth Stage</h3>
+            <h3 style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t('Growth Stage')}</h3>
             <Badge variant={STAGE_COLORS[crop.currentGrowthStage] || 'gray'}>
-              {crop.currentGrowthStage}
+              {t(crop.currentGrowthStage)}
             </Badge>
           </div>
 
@@ -141,7 +143,7 @@ const CropDetailPage = () => {
                     {idx < stageIndex ? '✓' : stage.icon}
                   </div>
                   <span style={{ fontSize: '0.55rem', color: idx <= stageIndex ? 'var(--green-700)' : 'var(--text-muted)', fontWeight: 600, textAlign: 'center', maxWidth: '3rem' }}>
-                    {stage.label}
+                    {t(stage.label)}
                   </span>
                 </div>
                 {idx < GROWTH_STAGES.length - 1 && (
@@ -158,25 +160,25 @@ const CropDetailPage = () => {
               onClick={handleNextStage}
               disabled={stageUpdating}
             >
-              {stageUpdating ? 'Updating...' : `→ Advance to ${nextStage}`}
+              {stageUpdating ? t('Updating...') : `→ ${t('Advance to')} ${t(nextStage)}`}
             </button>
           )}
           {!nextStage && (
-            <Alert type="success">🌾 This crop has reached the Harvest stage!</Alert>
+            <Alert type="success">🌾 {t('This crop has reached the Harvest stage!')}</Alert>
           )}
         </div>
 
         {/* Watering */}
         <div className="card">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ fontWeight: 600, color: 'var(--text-primary)' }}>💧 Watering</h3>
+            <h3 style={{ fontWeight: 600, color: 'var(--text-primary)' }}>💧 {t('Watering')}</h3>
             <button id="log-water-btn" className="btn btn-primary btn-sm"
               onClick={() => setShowWaterModal(true)}>
-              + Log Watering
+              + {t('Log Watering')}
             </button>
           </div>
           <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)' }}>
-            Last watered: <strong>{crop.lastWateredAt ? timeAgo(crop.lastWateredAt) : 'Not recorded'}</strong>
+            {t('Last watered:')} <strong>{crop.lastWateredAt ? timeAgo(crop.lastWateredAt) : t('Not recorded')}</strong>
           </p>
 
           {wateringLogs.length > 0 && (
@@ -188,7 +190,7 @@ const CropDetailPage = () => {
                   background: 'var(--green-50)', borderRadius: 'var(--radius-md)',
                   fontSize: 'var(--text-xs)'
                 }}>
-                  <span>💧 {log.method}</span>
+                  <span>💧 {t(log.method)}</span>
                   <span style={{ color: 'var(--text-muted)' }}>{formatDate(log.wateredAt)}</span>
                 </div>
               ))}
@@ -198,12 +200,12 @@ const CropDetailPage = () => {
 
         {/* Crop Info */}
         <div className="card">
-          <h3 style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1rem' }}>Crop Info</h3>
+          <h3 style={{ fontWeight: 600, color: 'var(--text-primary)', marginBottom: '1rem' }}>{t('Crop Info')}</h3>
           {[
-            ['Planted On', formatDate(crop.plantingDate)],
-            ['Soil Type', crop.soilType],
-            ['Water Source', crop.waterAvailability],
-            ['Expected Yield', crop.expectedYield ? `${crop.expectedYield} ${crop.yieldUnit}` : '—'],
+            [t('Planted On'), new Intl.DateTimeFormat(language, { dateStyle: 'medium' }).format(new Date(`${crop.plantingDate}T12:00:00`))],
+            [t('Soil Type'), t(crop.soilType)],
+            [t('Water Source'), t(crop.waterAvailability)],
+            [t('Expected Yield'), crop.expectedYield ? `${crop.expectedYield} ${t(crop.yieldUnit)}` : '—'],
           ].map(([label, value]) => (
             <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: 'var(--space-2) 0', borderBottom: '1px solid var(--neutral-100)', fontSize: 'var(--text-sm)' }}>
               <span style={{ color: 'var(--text-muted)' }}>{label}</span>
@@ -221,16 +223,16 @@ const CropDetailPage = () => {
         {!showDeleteConfirm ? (
           <button id="delete-crop-btn" className="btn btn-danger btn-full"
             onClick={() => setShowDeleteConfirm(true)}>
-            🗑 Delete Crop
+            🗑 {t('Delete Crop')}
           </button>
         ) : (
           <div className="card" style={{ border: '1px solid var(--color-danger)' }}>
             <p style={{ fontWeight: 600, color: 'var(--color-danger)', marginBottom: '0.75rem' }}>
-              Are you sure you want to delete {crop.cropName}?
+              {t('Are you sure you want to delete')} {t(crop.cropName)}?
             </p>
             <div style={{ display: 'flex', gap: '0.75rem' }}>
-              <button id="confirm-delete-btn" className="btn btn-danger" style={{ flex: 1 }} onClick={handleDelete}>Yes, Delete</button>
-              <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
+              <button id="confirm-delete-btn" className="btn btn-danger" style={{ flex: 1 }} onClick={handleDelete}>{t('Yes, Delete')}</button>
+              <button className="btn btn-outline" style={{ flex: 1 }} onClick={() => setShowDeleteConfirm(false)}>{t('Cancel')}</button>
             </div>
           </div>
         )}
@@ -242,36 +244,36 @@ const CropDetailPage = () => {
             display: 'flex', alignItems: 'flex-end', zIndex: 200,
           }}>
             <div style={{ background: 'white', borderRadius: '1.5rem 1.5rem 0 0', padding: '1.5rem', width: '100%', maxWidth: '480px', margin: '0 auto' }}>
-              <h3 style={{ fontWeight: 700, marginBottom: '1rem' }}>Log Watering</h3>
+              <h3 style={{ fontWeight: 700, marginBottom: '1rem' }}>{t('Log Watering')}</h3>
               <form onSubmit={handleLogWater}>
                 <div className="form-group">
-                  <label className="form-label">Date & Time</label>
+                  <label className="form-label">{t('Date & Time')}</label>
                   <input type="datetime-local" name="wateredAt" className="form-input"
                     value={waterForm.wateredAt}
                     onChange={(e) => setWaterForm((p) => ({ ...p, wateredAt: e.target.value }))} />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Method</label>
+                  <label className="form-label">{t('Method')}</label>
                   <select name="method" className="form-input form-select"
                     value={waterForm.method}
                     onChange={(e) => setWaterForm((p) => ({ ...p, method: e.target.value }))}>
                     {['Drip', 'Sprinkler', 'Flood', 'Manual', 'Rain', 'Other'].map((m) => (
-                      <option key={m} value={m}>{m}</option>
+                      <option key={m} value={m}>{t(m)}</option>
                     ))}
                   </select>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Notes</label>
-                  <input type="text" className="form-input" placeholder="Optional notes..."
+                  <label className="form-label">{t('Notes')}</label>
+                  <input type="text" className="form-input" placeholder={t('Optional notes...')}
                     value={waterForm.notes}
                     onChange={(e) => setWaterForm((p) => ({ ...p, notes: e.target.value }))} />
                 </div>
                 <div style={{ display: 'flex', gap: '0.75rem' }}>
                   <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={waterLoading}>
-                    {waterLoading ? 'Saving...' : '💧 Save'}
+                    {waterLoading ? t('Saving...') : t('💧 Save')}
                   </button>
                   <button type="button" className="btn btn-outline" style={{ flex: 1 }}
-                    onClick={() => setShowWaterModal(false)}>Cancel</button>
+                    onClick={() => setShowWaterModal(false)}>{t('Cancel')}</button>
                 </div>
               </form>
             </div>

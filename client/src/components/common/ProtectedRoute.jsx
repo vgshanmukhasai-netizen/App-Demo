@@ -1,12 +1,14 @@
 import { Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Loader from '../common/Loader';
+import { useLanguage } from '../../context/LanguageContext';
 
 /**
  * Wraps protected routes — redirects to /login if not authenticated
  */
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
+  const { t } = useLanguage();
 
   if (loading) {
     return (
@@ -19,7 +21,7 @@ const ProtectedRoute = ({ children }) => {
           background: 'var(--bg-app)',
         }}
       >
-        <Loader size="lg" text="Loading AgroSelf..." />
+        <Loader size="lg" text={t('Loading AgroSelf...')} />
       </div>
     );
   }

@@ -4,12 +4,13 @@ import BottomNav from '../components/layout/BottomNav';
 import Loader from '../components/common/Loader';
 import Alert from '../components/common/Alert';
 import { marketAPI } from '../services/marketAPI';
-import { formatIndianNumber } from '../utils/calculatorUtils';
+import { useLanguage } from '../context/LanguageContext';
 
 const DEMAND_COLORS = { High: 'green', Medium: 'yellow', Low: 'red' };
 const TREND_ICONS = { Rising: '📈', Stable: '➡️', Falling: '📉' };
 
 const MarketDemandPage = () => {
+  const { t } = useLanguage();
   const [marketData, setMarketData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -37,8 +38,7 @@ const MarketDemandPage = () => {
       <div className="page page-with-header fade-in">
 
         <Alert type="info" icon="ℹ️">
-          <strong>Note:</strong> Prices shown are indicative estimates from APMC markets.
-          Real market data integration planned for a future phase.
+          <strong>{t('Note')}:</strong> {t('Prices shown are indicative estimates from APMC markets. Real market data integration planned for a future phase.')}
         </Alert>
 
         {/* Filter */}
@@ -51,24 +51,24 @@ const MarketDemandPage = () => {
               onClick={() => setFilter(f)}
               style={{ flexShrink: 0 }}
             >
-              {f} Demand
+              {t(`${f} Demand`)}
             </button>
           ))}
         </div>
 
-        {loading && <Loader text="Loading market data..." />}
+        {loading && <Loader text={t('Loading market data...')} />}
         {error && <Alert type="danger">{error}</Alert>}
 
         {!loading && filtered.length === 0 && (
           <div className="empty-state card">
             <span className="empty-icon">📊</span>
-            <p className="empty-title">No data available</p>
+            <p className="empty-title">{t('No data available')}</p>
           </div>
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
           {filtered.map((item) => (
-            <div key={item._id} className="card" id={`market-card-${item.cropName.toLowerCase()}`}
+            <div key={item._id ?? item.id} className="card" id={`market-card-${item.cropName.toLowerCase()}`}
               style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <div style={{ fontSize: '2rem', width: '3rem', height: '3rem', background: 'var(--green-50)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 🌾
@@ -76,10 +76,10 @@ const MarketDemandPage = () => {
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <h4 style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--text-primary)' }}>
-                    {item.cropName}
+                    {t(item.cropName)}
                   </h4>
                   <span className={`badge badge-${DEMAND_COLORS[item.demandLevel] || 'gray'}`}>
-                    {item.demandLevel}
+                    {t(item.demandLevel)}
                   </span>
                 </div>
                 <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
@@ -91,7 +91,7 @@ const MarketDemandPage = () => {
                   ₹{item.pricePerKg}/kg
                 </p>
                 <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
-                  {TREND_ICONS[item.priceTrend]} {item.priceTrend}
+                  {TREND_ICONS[item.priceTrend]} {t(item.priceTrend)}
                 </p>
               </div>
             </div>

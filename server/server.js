@@ -14,9 +14,6 @@ const cropRoutes = require('./routes/cropRoutes');
 const marketRoutes = require('./routes/marketRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 
-// Connect to MySQL
-connectDB();
-
 const app = express();
 
 // ─── Middleware ──────────────────────────────────────────────────────────────
@@ -26,7 +23,7 @@ app.use(
   cors({
     origin: (origin, callback) => {
       // Allow no-origin (curl/Postman) and any localhost in development
-      if (!origin || /^http:\/\/localhost:\d+$/.test(origin) || origin === process.env.CLIENT_URL) {
+      if (!origin || /^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(origin) || origin === process.env.CLIENT_URL) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
@@ -79,8 +76,16 @@ app.use(errorHandler);
 
 // ─── Start Server ─────────────────────────────────────────────────────────────
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`🚀 AgroSelf server running on http://localhost:${PORT}`);
-  console.log(`📍 Environment: ${process.env.NODE_ENV}`);
-});
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  connectDB()
+    .then(() => {
+      app.listen(PORT, () => {
+        console.log(`AgroSelf server running on http://localhost:${PORT}`);
+        console.log(`Environment: ${process.env.NODE_ENV}`);
+      });
+    })
+    .catch(() => process.exit(1));
+}
+
+module.exports = { app, connectDB };

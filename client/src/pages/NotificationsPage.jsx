@@ -5,6 +5,7 @@ import Loader from '../components/common/Loader';
 import Alert from '../components/common/Alert';
 import api from '../services/api';
 import { timeAgo } from '../utils/dateUtils';
+import { useLanguage } from '../context/LanguageContext';
 
 const TYPE_ICONS = {
   rain_alert: '🌧️',
@@ -18,6 +19,7 @@ const TYPE_ICONS = {
 const PRIORITY_COLORS = { high: 'red', medium: 'yellow', low: 'gray' };
 
 const NotificationsPage = () => {
+  const { t } = useLanguage();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -28,13 +30,13 @@ const NotificationsPage = () => {
         const res = await api.get('/notifications');
         setNotifications(res.data.data.notifications);
       } catch {
-        setError('Failed to load notifications.');
+        setError(t('Failed to load notifications.'));
       } finally {
         setLoading(false);
       }
     };
     fetch();
-  }, []);
+  }, [t]);
 
   const markRead = async (id) => {
     try {
@@ -61,23 +63,23 @@ const NotificationsPage = () => {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)' }}>
-            {unread.length} unread
+            {unread.length} {t('unread')}
           </p>
           {notifications.some((n) => n.isRead) && (
             <button id="clear-read-btn" className="btn btn-ghost btn-sm" onClick={clearRead}>
-              Clear Read
+              {t('Clear Read')}
             </button>
           )}
         </div>
 
-        {loading && <Loader text="Loading..." />}
+        {loading && <Loader text={t('Loading')} />}
         {error && <Alert type="danger">{error}</Alert>}
 
         {!loading && notifications.length === 0 && (
           <div className="empty-state card">
             <span className="empty-icon">🔔</span>
-            <p className="empty-title">No notifications yet</p>
-            <p className="empty-desc">Rain alerts, watering reminders, and harvest notifications will appear here.</p>
+            <p className="empty-title">{t('No notifications yet')}</p>
+            <p className="empty-desc">{t('Rain alerts, watering reminders, and harvest notifications will appear here.')}</p>
           </div>
         )}
 
@@ -99,14 +101,14 @@ const NotificationsPage = () => {
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <p style={{ fontWeight: notif.isRead ? 500 : 700, fontSize: 'var(--text-sm)', color: 'var(--text-primary)' }}>
-                      {notif.title}
+                      {t(notif.title)}
                     </p>
                     {!notif.isRead && (
                       <span style={{ width: '0.5rem', height: '0.5rem', borderRadius: '50%', background: 'var(--green-500)', flexShrink: 0 }} />
                     )}
                   </div>
                   <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginTop: '0.2rem' }}>
-                    {notif.message}
+                    {t(notif.message)}
                   </p>
                   <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
                     {timeAgo(notif.createdAt)}

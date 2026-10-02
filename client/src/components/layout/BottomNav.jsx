@@ -1,5 +1,5 @@
-import { NavLink, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { NavLink } from 'react-router-dom';
+import { useLanguage } from '../../context/LanguageContext';
 import './BottomNav.css';
 
 const NAV_ITEMS = [
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
 ];
 
 const BottomNav = () => {
+  const { t } = useLanguage();
   return (
     <nav className="bottom-nav" id="bottom-nav">
       {NAV_ITEMS.map((item) => (
@@ -22,7 +23,7 @@ const BottomNav = () => {
           }
         >
           <span className="bottom-nav-icon">{item.icon}</span>
-          <span className="bottom-nav-label">{item.label}</span>
+          <span className="bottom-nav-label">{t(item.label)}</span>
         </NavLink>
       ))}
     </nav>

@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/layout/Navbar';
 import BottomNav from '../components/layout/BottomNav';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import { useCrops } from '../context/CropContext';
 import Badge from '../components/common/Badge';
 import Alert from '../components/common/Alert';
@@ -14,6 +15,7 @@ import {
 
 const ProfilePage = () => {
   const { farmer, logout, updateFarmerLocally } = useAuth();
+  const { t } = useLanguage();
   const { activeCrops } = useCrops();
   const navigate = useNavigate();
 
@@ -58,10 +60,10 @@ const ProfilePage = () => {
         },
       });
       updateFarmerLocally(res.data.data.farmer);
-      setSuccess('Profile updated successfully!');
+      setSuccess(t('Profile updated successfully!'));
       setEditing(false);
     } catch (err) {
-      setError(err.response?.data?.message || 'Update failed.');
+      setError(err.response?.data?.message || t('Update failed.'));
     } finally {
       setLoading(false);
     }
@@ -93,7 +95,7 @@ const ProfilePage = () => {
           <p style={{ color: 'rgba(255,255,255,0.75)', marginTop: '0.25rem' }}>{farmer.email}</p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', marginTop: '1rem' }}>
             <Badge variant="green" style={{ background: 'rgba(255,255,255,0.2)', color: 'white' }}>
-              {activeCrops.length} Active Crops
+              {activeCrops.length} {t('Active Crops')}
             </Badge>
           </div>
         </div>
@@ -116,12 +118,12 @@ const ProfilePage = () => {
             ].map(({ title, fields }) => (
               <div key={title} className="card">
                 <h3 style={{ fontWeight: 600, marginBottom: '0.75rem', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  {title}
+                  {t(title === '📞 Contact' ? 'Contact' : title === '📍 Location' ? 'Location' : 'Land Details')}
                 </h3>
                 {fields.map(([label, value]) => (
                   <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid var(--neutral-100)', fontSize: 'var(--text-sm)' }}>
-                    <span style={{ color: 'var(--text-muted)' }}>{label}</span>
-                    <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{value}</span>
+                    <span style={{ color: 'var(--text-muted)' }}>{t(label)}</span>
+                    <span style={{ fontWeight: 500, color: 'var(--text-primary)' }}>{t(value)}</span>
                   </div>
                 ))}
               </div>
@@ -129,86 +131,86 @@ const ProfilePage = () => {
 
             <button id="edit-profile-btn" className="btn btn-outline btn-full"
               onClick={() => { setEditing(true); setSuccess(''); }}>
-              ✏️ Edit Profile
+              ✏️ {t('Edit Profile')}
             </button>
             <button id="logout-btn" className="btn btn-danger btn-full" onClick={handleLogout}>
-              Logout
+              {t('Logout')}
             </button>
           </>
         ) : (
           /* Edit Form */
           <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div className="card">
-              <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>Personal Details</h3>
+              <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>{t('Personal Details')}</h3>
               <div className="form-group">
-                <label className="form-label">Full Name</label>
+                <label className="form-label">{t('Full name')}</label>
                 <input name="name" type="text" className="form-input" value={form.name} onChange={handleChange} />
               </div>
               <div className="form-group">
-                <label className="form-label">Phone Number</label>
+                <label className="form-label">{t('Phone number')}</label>
                 <input name="phone" type="tel" className="form-input" value={form.phone} onChange={handleChange} maxLength={10} />
               </div>
             </div>
 
             <div className="card">
-              <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>Location</h3>
+              <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>{t('Farm location')}</h3>
               <div className="form-group">
-                <label className="form-label">Village / Town</label>
+                <label className="form-label">{t('Village / Town')}</label>
                 <input name="village" type="text" className="form-input" value={form.village} onChange={handleChange} />
               </div>
               <div className="form-group">
-                <label className="form-label">District</label>
+                <label className="form-label">{t('District')}</label>
                 <input name="district" type="text" className="form-input" value={form.district} onChange={handleChange} />
               </div>
               <div className="form-group">
-                <label className="form-label">State</label>
+                <label className="form-label">{t('State')}</label>
                 <select name="state" className="form-input form-select" value={form.state} onChange={handleChange}>
-                  <option value="">Select State</option>
-                  {INDIAN_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+                  <option value="">{t('Select State')}</option>
+                  {INDIAN_STATES.map((s) => <option key={s} value={s}>{t(s)}</option>)}
                 </select>
               </div>
             </div>
 
             <div className="card">
-              <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>Land Details</h3>
+              <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>{t('Land Details')}</h3>
               <div className="form-row-2">
                 <div className="form-group" style={{ flex: 2 }}>
-                  <label className="form-label">Total Area</label>
+                  <label className="form-label">{t('Total Area')}</label>
                   <input name="totalArea" type="number" className="form-input" value={form.totalArea} onChange={handleChange} min="0" step="0.5" />
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
-                  <label className="form-label">Unit</label>
+                  <label className="form-label">{t('Unit')}</label>
                   <select name="areaUnit" className="form-input form-select" value={form.areaUnit} onChange={handleChange}>
-                    {AREA_UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
+                    {AREA_UNITS.map((u) => <option key={u} value={u}>{t(u)}</option>)}
                   </select>
                 </div>
               </div>
               <div className="form-group">
-                <label className="form-label">Soil Type</label>
+                <label className="form-label">{t('Soil Type')}</label>
                 <select name="soilType" className="form-input form-select" value={form.soilType} onChange={handleChange}>
-                  {SOIL_TYPES.map((s) => <option key={s} value={s}>{s}</option>)}
+                  {SOIL_TYPES.map((s) => <option key={s} value={s}>{t(s)}</option>)}
                 </select>
               </div>
               <div className="form-group">
-                <label className="form-label">Water Availability</label>
+                <label className="form-label">{t('Water Availability')}</label>
                 <select name="waterAvailability" className="form-input form-select" value={form.waterAvailability} onChange={handleChange}>
-                  {WATER_AVAILABILITY.map((w) => <option key={w} value={w}>{w}</option>)}
+                  {WATER_AVAILABILITY.map((w) => <option key={w} value={w}>{t(w)}</option>)}
                 </select>
               </div>
               <div className="form-group">
-                <label className="form-label">Irrigation Type</label>
+                <label className="form-label">{t('Irrigation Type')}</label>
                 <select name="irrigationType" className="form-input form-select" value={form.irrigationType} onChange={handleChange}>
-                  {IRRIGATION_TYPES.map((i) => <option key={i} value={i}>{i}</option>)}
+                  {IRRIGATION_TYPES.map((i) => <option key={i} value={i}>{t(i)}</option>)}
                 </select>
               </div>
             </div>
 
             <div className="form-row-2">
               <button type="button" className="btn btn-outline" style={{ flex: 1 }} onClick={() => setEditing(false)}>
-                Cancel
+                {t('Cancel')}
               </button>
               <button id="save-profile-btn" type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={loading}>
-                {loading ? 'Saving...' : 'Save Changes'}
+                {loading ? t('Saving...') : t('Save Changes')}
               </button>
             </div>
           </form>

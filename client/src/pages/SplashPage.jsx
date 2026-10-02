@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useLanguage } from '../context/LanguageContext';
 import './SplashPage.css';
 
 const SplashPage = () => {
   const { isAuthenticated, loading } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,7 +33,7 @@ const SplashPage = () => {
 
         {/* App Name */}
         <h1 className="splash-title">AgroSelf</h1>
-        <p className="splash-tagline">Smart Farming for Every Farmer</p>
+        <p className="splash-tagline">{t('Smart Farming for Every Farmer')}</p>
 
         {/* Decorative dots */}
         <div className="splash-dots">
@@ -41,7 +43,7 @@ const SplashPage = () => {
         </div>
 
         {/* Bottom text */}
-        <p className="splash-footer">Agriculture & AgriTech Platform</p>
+        <p className="splash-footer">{t('Agriculture & AgriTech Platform')}</p>
       </div>
     </div>
   );

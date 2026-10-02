@@ -8,7 +8,7 @@ A full-stack AgriTech platform to help farmers manage crops, track growth, plan 
 
 ### Prerequisites
 - Node.js v18+
-- MongoDB Atlas account (free)
+- MySQL-compatible database
 - OpenWeatherMap API key (free)
 
 ---
@@ -26,7 +26,7 @@ cd agro-self
 cd server
 cp .env.example .env
 # Edit .env and fill in:
-#   MONGODB_URI — your MongoDB Atlas connection string
+#   DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASS — your MySQL connection details
 #   JWT_SECRET  — any random secret key
 #   WEATHER_API_KEY — from openweathermap.org (for Phase 7+)
 npm install
@@ -113,6 +113,19 @@ agro-self/
 - **Phase 12** 🔜 Testing & Final Deployment
 
 ---
+
+## Deploy to Vercel
+
+Create or update the Vercel project with the repository root as its **Root Directory**. The root `vercel.json` builds the client and routes `/api/*` requests through the Express serverless function. Do not set the Root Directory to `client`.
+
+Add these Vercel environment variables for Production:
+
+- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASS`: credentials for a publicly reachable MySQL-compatible database. Vercel cannot connect to a MySQL server running on your computer.
+- `JWT_SECRET`: a long, unique random secret.
+- `CLIENT_URL`: the exact deployed frontend origin, such as `https://app-demo-self.vercel.app`.
+- `JWT_EXPIRES_IN`: optional; defaults to `7d`.
+
+Redeploy after changing the Root Directory or environment variables. Once deployed, `https://<your-domain>/api/health` should return the API health response; registration will not work until the database variables point to a reachable database.
 
 ## 🔒 Important Security Notes
 

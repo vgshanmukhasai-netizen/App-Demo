@@ -4,6 +4,7 @@ import BottomNav from '../components/layout/BottomNav';
 import Alert from '../components/common/Alert';
 import { calculateProfit, formatCurrency } from '../utils/calculatorUtils';
 import { COMMON_CROPS, AREA_UNITS } from '../constants/farmConstants';
+import { useLanguage } from '../context/LanguageContext';
 
 const COST_FIELDS = [
   { name: 'seedCost', label: '🌱 Seed Cost' },
@@ -15,6 +16,7 @@ const COST_FIELDS = [
 ];
 
 const ProfitCalculatorPage = () => {
+  const { t } = useLanguage();
   const [form, setForm] = useState({
     cropName: '', landArea: '1', areaUnit: 'acres',
     expectedYieldPerAcre: '', sellingPricePerKg: '',
@@ -47,31 +49,31 @@ const ProfitCalculatorPage = () => {
   return (
     <div className="app-container">
       <Navbar title="Profit Calculator" showBack />
-      <div className="page page-with-header fade-in" style={{ paddingBottom: '2rem' }}>
+      <div className="page page-with-header fade-in">
 
         <Alert type="warning" icon="⚠️">
-          All figures are <strong>estimates</strong> based on your inputs. Actual profit may vary.
+          {t('All figures are')} <strong>{t('estimates')}</strong> {t('based on your inputs. Actual profit may vary.')}
         </Alert>
 
         <form onSubmit={handleCalculate} id="profit-calculator-form" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
           {/* Crop & Area */}
           <div className="card">
-            <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>🌾 Crop & Area</h3>
+            <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>🌾 {t('Crop & Area')}</h3>
             <div className="form-group">
-              <label className="form-label">Crop</label>
+              <label className="form-label">{t('Crop')}</label>
               <select name="cropName" className="form-input form-select" value={form.cropName} onChange={handleChange}>
-                <option value="">Select Crop</option>
-                {COMMON_CROPS.map((c) => <option key={c} value={c}>{c}</option>)}
+                <option value="">{t('Select Crop')}</option>
+                {COMMON_CROPS.map((c) => <option key={c} value={c}>{t(c)}</option>)}
               </select>
             </div>
             <div className="form-row-2">
               <div className="form-group" style={{ flex: 2 }}>
-                <label className="form-label">Land Area</label>
-                <input name="landArea" type="number" className="form-input" value={form.landArea} onChange={handleChange} min="0.1" step="0.5" />
+                <label className="form-label">{t('Land Area')}</label>
+                <input name="landArea" type="number" className="form-input" value={form.landArea} onChange={handleChange} min="0.1" step="0.1" />
               </div>
               <div className="form-group" style={{ flex: 1 }}>
-                <label className="form-label">Unit</label>
+                <label className="form-label">{t('Unit')}</label>
                 <select name="areaUnit" className="form-input form-select" value={form.areaUnit} onChange={handleChange}>
                   {AREA_UNITS.map((u) => <option key={u} value={u}>{u}</option>)}
                 </select>
@@ -81,14 +83,14 @@ const ProfitCalculatorPage = () => {
 
           {/* Yield & Price */}
           <div className="card">
-            <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>📦 Yield & Price</h3>
+            <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>📦 {t('Yield & Price')}</h3>
             <div className="form-group">
-              <label className="form-label">Expected Yield per Acre (kg)</label>
+              <label className="form-label">{t('Expected Yield per Acre (kg)')}</label>
               <input name="expectedYieldPerAcre" type="number" className="form-input"
                 placeholder="e.g. 1500" value={form.expectedYieldPerAcre} onChange={handleChange} min="0" />
             </div>
             <div className="form-group">
-              <label className="form-label">Selling Price per kg (₹)</label>
+              <label className="form-label">{t('Selling Price per kg (₹)')}</label>
               <input name="sellingPricePerKg" type="number" className="form-input"
                 placeholder="e.g. 30" value={form.sellingPricePerKg} onChange={handleChange} min="0" step="0.5" />
             </div>
@@ -96,10 +98,10 @@ const ProfitCalculatorPage = () => {
 
           {/* Costs */}
           <div className="card">
-            <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>💸 Cultivation Costs (₹)</h3>
+            <h3 style={{ fontWeight: 600, marginBottom: '1rem' }}>💸 {t('Cultivation Costs (₹)')}</h3>
             {COST_FIELDS.map((f) => (
               <div className="form-group" key={f.name}>
-                <label className="form-label">{f.label}</label>
+                <label className="form-label">{t(f.label)}</label>
                 <input name={f.name} type="number" className="form-input"
                   placeholder="0" value={form[f.name]} onChange={handleChange} min="0" />
               </div>
@@ -107,7 +109,7 @@ const ProfitCalculatorPage = () => {
           </div>
 
           <button id="calculate-profit-btn" type="submit" className="btn btn-primary btn-full btn-lg">
-            💰 Calculate Profit
+            💰 {t('Calculate Profit')}
           </button>
         </form>
 
@@ -115,13 +117,13 @@ const ProfitCalculatorPage = () => {
         {result && (
           <div className="card fade-in" id="profit-result" style={{ marginTop: '0', border: '2px solid var(--green-300)' }}>
             <h3 style={{ fontWeight: 700, marginBottom: '1rem', color: 'var(--text-primary)' }}>
-              📊 Profit Estimate {form.cropName && `— ${form.cropName}`}
+              📊 {t('Profit Estimate')} {form.cropName && `— ${t(form.cropName)}`}
             </h3>
 
             {[
-              { label: 'Total Yield', value: `${result.totalYield} kg`, color: 'var(--text-primary)' },
-              { label: 'Expected Revenue', value: formatCurrency(result.expectedRevenue), color: 'var(--color-info)' },
-              { label: 'Total Cost', value: formatCurrency(result.totalCost), color: 'var(--color-danger)' },
+              { label: t('Total Yield'), value: `${result.totalYield} kg`, color: 'var(--text-primary)' },
+              { label: t('Expected Revenue'), value: formatCurrency(result.expectedRevenue), color: 'var(--color-info)' },
+              { label: t('Total Cost'), value: formatCurrency(result.totalCost), color: 'var(--color-danger)' },
             ].map(({ label, value, color }) => (
               <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid var(--neutral-100)', fontSize: 'var(--text-sm)' }}>
                 <span style={{ color: 'var(--text-muted)' }}>{label}</span>
@@ -131,18 +133,18 @@ const ProfitCalculatorPage = () => {
 
             <div style={{ marginTop: '1rem', background: result.isProfitable ? 'var(--green-50)' : '#fee2e2', borderRadius: 'var(--radius-xl)', padding: '1rem', textAlign: 'center' }}>
               <p style={{ fontSize: 'var(--text-xs)', color: result.isProfitable ? 'var(--green-700)' : 'var(--color-danger)', fontWeight: 600, marginBottom: '0.25rem' }}>
-                ESTIMATED PROFIT
+                {t('ESTIMATED PROFIT')}
               </p>
               <p style={{ fontSize: '2rem', fontWeight: 800, color: result.isProfitable ? 'var(--green-600)' : 'var(--color-danger)', fontFamily: 'var(--font-heading)' }}>
                 {result.isProfitable ? '+' : ''}{formatCurrency(result.estimatedProfit)}
               </p>
               <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                {formatCurrency(result.profitPerAcre)} per acre · {result.profitMargin}% margin
+                {formatCurrency(result.profitPerAcre)} {t('per acre')} · {result.profitMargin}% {t('margin')}
               </p>
             </div>
 
             <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', textAlign: 'center', marginTop: '0.75rem', fontStyle: 'italic' }}>
-              * This is an estimate only. Market prices and actual yield may vary.
+              * {t('This is an estimate only. Market prices and actual yield may vary.')}
             </p>
           </div>
         )}
